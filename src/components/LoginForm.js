@@ -53,7 +53,7 @@ class LoginForm extends Component {
         return (
             <View style={containerStyle}>
                 <Text style={titleStyle}>
-                    Login
+                    Let's Login
                 </Text>
                 <Card>
                     <CardSection>
@@ -93,11 +93,12 @@ const styles = {
         paddingTop: 80
     },
     titleStyle: {
-        color: 'black',
-        fontSize: 48,
-        textAlign: 'left',
+        color: '#2e7d32',
+        fontSize: 56,
+        textAlign: 'center',
         marginBottom: 20,
-        marginLeft: 10
+        marginLeft: 10,
+        fontWeight: 'bold'
     },
     errorTextStyle: {
         fontSize: 20,

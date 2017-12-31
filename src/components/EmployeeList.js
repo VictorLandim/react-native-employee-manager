@@ -1,5 +1,9 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import _ from 'lodash';
+import { ListView, Alert } from 'react-native';
+import { connect } from 'react-redux';
+import { employeesFetch } from '../actions';
+import ListItem from './ListItem';
 import { Button } from 'react-native-elements';
 
 class EmployeeList extends React.Component {
@@ -11,7 +15,7 @@ class EmployeeList extends React.Component {
         const headerRight = (
             <Button
                 title="Add"
-                backgroundColor='blue'
+                backgroundColor='#69f0ae'
                 borderRadius={5}
                 raised
                 onPress={params.rightPress ? params.rightPress : () => null} />
@@ -20,8 +24,32 @@ class EmployeeList extends React.Component {
         return { title, headerLeft, headerRight };
     };
 
+    constructor(props) {
+        super(props);
+
+        this.onRowPress = this.onRowPress.bind(this);
+    }
+
     componentDidMount() {
         this.props.navigation.setParams({ rightPress: this._onButtonRightPress });
+    }
+
+    componentWillMount() {
+        this.props.employeesFetch();
+
+        this.createDataSource(this.props);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.createDataSource(nextProps);
+    }
+
+    createDataSource({ employees }) {
+        const ds = new ListView.DataSource({
+            rowHasChanged: (r1, r2) => r1 !== r2
+        });
+
+        this.dataSource = ds.cloneWithRows(employees);
     }
 
     _onButtonRightPress = () => {
@@ -29,15 +57,31 @@ class EmployeeList extends React.Component {
         navigate('Create');
     }
 
+    onRowPress(employee) {
+        // this.props.navigation.navigate('Create');
+        Alert.alert('clicked');
+    }
+
+    renderRow(employee) {
+        return <ListItem onPress={ (employee) => this.onRowPress.bind(this) } employee={employee} />;
+    }
+
     render() {
         return (
-            <View>
-                <Text>
-                    Hey
-                </Text>
-            </View>
+            <ListView
+                enableEmptySections
+                dataSource={this.dataSource}
+                renderRow={this.renderRow} />
         );
     }
 }
 
-export default EmployeeList;
+const mapStateToProps = (state) => {
+    const employees = _.map(state.employees, (val, uid) => {
+        return { ...val, uid };
+    });
+
+    return { employees };
+};
+
+export default connect(mapStateToProps, { employeesFetch })(EmployeeList);
