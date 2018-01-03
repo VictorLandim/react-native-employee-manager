@@ -1,10 +1,11 @@
 import React from 'react';
 import _ from 'lodash';
+import { Button } from 'react-native-elements';
 import { ListView, Alert } from 'react-native';
 import { connect } from 'react-redux';
 import { employeesFetch } from '../actions';
 import ListItem from './ListItem';
-import { Button } from 'react-native-elements';
+import { Spinner } from './common';
 
 class EmployeeList extends React.Component {
     static navigationOptions = ({ navigation }) => {
@@ -27,17 +28,17 @@ class EmployeeList extends React.Component {
     constructor(props) {
         super(props);
 
-        this.onRowPress = this.onRowPress.bind(this);
-    }
-
-    componentDidMount() {
-        this.props.navigation.setParams({ rightPress: this._onButtonRightPress });
+        this.renderRow = this.renderRow.bind(this);
     }
 
     componentWillMount() {
         this.props.employeesFetch();
 
         this.createDataSource(this.props);
+    }
+
+    componentDidMount() {
+        this.props.navigation.setParams({ rightPress: this._onButtonRightPress });
     }
 
     componentWillReceiveProps(nextProps) {
@@ -57,31 +58,39 @@ class EmployeeList extends React.Component {
         navigate('Create');
     }
 
-    onRowPress(employee) {
-        // this.props.navigation.navigate('Create');
-        Alert.alert('clicked');
-    }
-
     renderRow(employee) {
-        return <ListItem onPress={ (employee) => this.onRowPress.bind(this) } employee={employee} />;
+        return (
+            <ListItem
+                navigate={this.props.navigation.navigate}
+                employee={employee}
+            />
+        );
     }
 
     render() {
+        if (this.props.isLoading) {
+          return (
+            <Spinner />
+          );
+        }
+
         return (
             <ListView
                 enableEmptySections
                 dataSource={this.dataSource}
-                renderRow={this.renderRow} />
+                renderRow={this.renderRow}
+            />
         );
     }
 }
 
 const mapStateToProps = (state) => {
-    const employees = _.map(state.employees, (val, uid) => {
+    const { list, isLoading } = state.employees;
+    const employees = _.map(list, (val, uid) => {
         return { ...val, uid };
     });
 
-    return { employees };
+    return { employees, isLoading };
 };
 
 export default connect(mapStateToProps, { employeesFetch })(EmployeeList);

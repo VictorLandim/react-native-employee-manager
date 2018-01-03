@@ -1,14 +1,14 @@
 import React from 'react';
-import { Text, View, StyleSheet, TouchableNativeFeedback } from 'react-native';
+import { Text, View, StyleSheet, TouchableHighlight } from 'react-native';
 import { CardSection } from './common';
 
 class ListItem extends React.Component {
     render() {
-        const { employee, onPress } = this.props;
+        const { employee, navigate } = this.props;
 
-        return(
-            <TouchableNativeFeedback
-                onPress={onPress}
+        return (
+            <TouchableHighlight
+                onPress={() => navigate('Edit', { employee })}
             >
                     <View>
                         <CardSection>
@@ -17,7 +17,7 @@ class ListItem extends React.Component {
                             </Text>
                         </CardSection>
                     </View>
-            </TouchableNativeFeedback>
+            </TouchableHighlight>
         );
     }
 }

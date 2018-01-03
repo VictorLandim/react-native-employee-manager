@@ -3,7 +3,10 @@ import firebase from 'firebase';
 import {
     EMPLOYEE_UPDATE,
     EMPLOYEE_CREATE,
-    EMPLOYEE_FETCH
+    EMPLOYEE_FETCH,
+    EMPLOYEE_FETCHING,
+    EMPLOYEE_SAVE,
+    EMPLOYEE_REMOVE
 } from './types';
 
 export const employeeUpdate = ({ prop, value }) => {
@@ -25,10 +28,28 @@ export const employeeCreate = ({ name, phone, shift }) => {
     }
 };
 
+export const employeeSave = ({ name, phone, shift, uid }) => {
+    const { currentUser } = firebase.auth();
+
+    return (dispatch) => {
+        firebase.database().ref(`/users/${currentUser.uid}/employees/${uid}`)
+            .set({ name, phone, shift })
+            .then(() => {
+                dispatch({
+                    type: EMPLOYEE_SAVE
+                })
+            });
+    }
+};
+
 export const employeesFetch = () => {
     const { currentUser } = firebase.auth();
 
     return (dispatch) => {
+        dispatch({
+            type: EMPLOYEE_FETCHING
+        });
+
         firebase.database().ref(`/users/${currentUser.uid}/employees`)
             .on('value', (snapshot) => {
                 dispatch({
@@ -36,5 +57,19 @@ export const employeesFetch = () => {
                     payload: snapshot.val()
                 });
             });
+    };
+};
+
+export const employeeDelete = ({ uid }) => {
+    const { currentUser } = firebase.auth();
+
+    return (dispatch) => {
+      firebase.database().ref(`/users/${currentUser.uid}/employees/${uid}`)
+          .remove()
+          .then(() => {
+              dispatch({
+                  type: EMPLOYEE_REMOVE
+              })
+          });
     };
 };
